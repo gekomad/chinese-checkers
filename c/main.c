@@ -1,6 +1,7 @@
 /*
+    CHINESE CHECKERS - find all solutions - c source
 
-    CHINESE CHECKERS - find all solutions
+	run: gcc -O3 main.c -o checkers;./checkers
 
  	 	O	O	O
  	 	O	O	O
@@ -9,7 +10,6 @@ O	O	O	-	O	O	O
 O	O	O	O	O	O	O
  	 	O	O	O
  	 	O	O	O
-
  */
 
 #include "stdio.h"
@@ -122,7 +122,8 @@ void print_stack() {
     }
     print(board);
     printf("Nmoves: %llu Hash cut: %llu (%d%%) ", nmoves, cut, cut * 100 / nmoves);
-    printf("\n----------------------------------- end stack moves ----------------------------------------\n");
+    printf("\nSolution# %d ms: %ld ----------------- end stack moves ------------------------  \n",
+           Nsolution, time);
     fflush(stdout);
 }
 
@@ -205,5 +206,6 @@ int main(int argc, char *argv[]) {
     print(board);
     start_time = get_ms();
     gen();
+	free(hash_array);
     return 0;
 }
