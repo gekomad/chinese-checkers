@@ -99,7 +99,8 @@ long get_ms() {
 }
 
 void print(u64 board) {
-    for (int k = 64; k >= 1; k--) {
+	int k;
+    for (k = 64; k >= 1; k--) {
         if ((board & POW2[k - 1]) == 0) {
             if ((BOARD & POW2[k - 1]) == 0)
                 printf(" \t");
@@ -117,11 +118,12 @@ void print_stack() {
     Nsolution++;
     printf("\nSolution# %d ms: %ld ----------------- start stack moves ------------------------  \n",
            Nsolution, time);
-    for (int i = 0; i < nstack; i++) {
+	int i;
+    for (i = 0; i < nstack; i++) {
         print(stack[i]);
     }
     print(board);
-    printf("Nmoves: %llu Hash cut: %llu (%d%%) ", nmoves, cut, cut * 100 / nmoves);
+    printf("Nmoves: %llu Hash cut: %llu (%llu%%) ", nmoves, cut, cut * 100 / nmoves);
     printf("\nSolution# %d ms: %ld ----------------- end stack moves ------------------------  \n",
            Nsolution, time);
     fflush(stdout);
@@ -132,7 +134,7 @@ void gen() {
     u64 from, bits, to, capture;
     int found = 0;
     if (!((++nmoves) % 5000000000)) {
-        printf("Nmoves: %llu Cut:%llu (%d%%) ", nmoves, cut, cut * 100 / nmoves);
+        printf("Nmoves: %llu Cut:%llu (%llu%%) ", nmoves, cut, cut * 100 / nmoves);
         fflush(stdout);
     }
     if (hash_array[board % HASH_SIZE] == board) {
