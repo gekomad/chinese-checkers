@@ -36,6 +36,16 @@ int Nsolution, count, nstack, TOT;
 long start_time;
 u64 *hash_array;
 u64 stack[64];
+const int index64[64] = {
+        0,  1, 48,  2, 57, 49, 28,  3,
+        61, 58, 50, 42, 38, 29, 17,  4,
+        62, 55, 59, 36, 53, 51, 43, 22,
+        45, 39, 33, 30, 24, 18, 12,  5,
+        63, 47, 56, 27, 60, 41, 37, 16,
+        54, 35, 52, 21, 44, 32, 23, 11,
+        46, 26, 40, 15, 34, 20, 31, 10,
+        25, 14, 19,  9, 13,  8,  7,  6
+};
 
 #if __WORDSIZE == 64
 
@@ -69,7 +79,7 @@ const u64 POW2[64] = {0x1ULL, 0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL,
 
 void undomove() {
     nstack--;
-    assert(nstack >= 0);
+//    assert(nstack >= 0);
     board = stack[nstack];
 }
 
@@ -79,7 +89,7 @@ void makemove(const u64 from, const u64 to, const u64 capture) {
     board |= to;
     board &= ~capture;
 
-    assert(nstack < TOT);
+//    assert(nstack < TOT);
     nstack++;
 }
 
@@ -98,7 +108,7 @@ long get_ms() {
     return (timebuffer.time * 1000) + timebuffer.millitm;
 }
 
-void print(u64 board) {
+void print(u64 board) {return;
 	int k;
     for (k = 64; k >= 1; k--) {
         if ((board & POW2[k - 1]) == 0) {
@@ -126,7 +136,8 @@ void print_stack() {
     printf("Nmoves: %llu Hash cut: %llu (%llu%%) ", nmoves, cut, cut * 100 / nmoves);
     printf("\nSolution# %d ms: %ld ----------------- end stack moves ------------------------  \n",
            Nsolution, time);
-    fflush(stdout);
+	if (Nsolution==30)exit(0);
+    
 }
 
 void gen() {
@@ -135,8 +146,9 @@ void gen() {
     int found = 0;
     if (!((++nmoves) % 5000000000)) {
         printf("Nmoves: %llu Cut:%llu (%llu%%) ", nmoves, cut, cut * 100 / nmoves);
-        fflush(stdout);
+       
     }
+
     if (hash_array[board % HASH_SIZE] == board) {
         cut++;
         return;

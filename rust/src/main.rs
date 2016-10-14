@@ -29,12 +29,12 @@ struct Global {
     board: Bits,
     nmoves: u64,
     cut: u64,
-    nsolution: i32,
-    count: i32,
-    nstack: i32,
-    tot: i32,
+    nsolution: isize,
+    count: isize,
+    nstack: isize,
+    tot: isize,
     start_time: u64,
-    hash_array: Box<[Bits]>,
+    hash_array: Vec<Bits>,
     stack: [Bits; 64],
 }
 
@@ -61,23 +61,22 @@ trait BitOperations {
 
 impl BitOperations for Bits {
     fn bitscan_forward(&self) -> usize {
-        const LSB_64_TABLE: [usize; 64] = [63, 30, 3, 32, 59, 14, 11, 33, 60, 24, 50, 9, 55, 19, 21, 34, 61, 29, 2, 53, 51, 23, 41, 18, 56, 28, 1, 43, 46, 27, 0, 35, 62, 31, 58, 4, 5, 49, 54, 6, 15, 52, 12, 40, 7, 42, 45, 16, 25, 57, 48, 13, 10, 39, 8, 44, 20, 47, 38, 22, 17, 37, 36, 26];
-
-        //  @author Matt Taylor (2003)
-        let bb = self ^ (self - 1);
-        let folded = (((bb as u32 ^ ((bb >> 32) as u32)) as Bits) * 0x78291ACF) as u32;
-        LSB_64_TABLE[(folded >> 26) as usize]
+        self.trailing_zeros() as usize
     }
 }
 
 fn undomove(global: &mut Global) {
     global.nstack = global.nstack - 1;
     debug_assert!(global.nstack >= 0);
-    global.board = global.stack[global.nstack as usize];
+    unsafe {
+        global.board = *global.stack.get_unchecked(global.nstack as usize);
+    }
 }
 
 fn makemove(from: Bits, to: Bits, capture: Bits, global: &mut Global) {
-    global.stack[global.nstack as usize] = global.board;
+    unsafe {
+        *global.stack.get_unchecked_mut(global.nstack as usize) = global.board;
+    }
     global.board &= !from;
     global.board |= to;
     global.board &= !capture;
@@ -86,8 +85,8 @@ fn makemove(from: Bits, to: Bits, capture: Bits, global: &mut Global) {
     global.nstack = global.nstack + 1;
 }
 
-fn pop_count(mut x: Bits) -> i32 {
-    let mut count: i32 = 0;
+fn pop_count(mut x: Bits) -> isize {
+    let mut count: isize = 0;
     while x != 0 {
         count = count + 1;
         x &= x - 1;
@@ -139,12 +138,12 @@ fn gen(global: &mut Global) {
     if global.nmoves % 5000000000 == 0 {
         print!("Nmoves: {} Cut:{} ({}%) ", global.nmoves, global.cut, global.cut * 100 / global.nmoves);
     }
-
-    if global.hash_array[(global.board % HASH_SIZE as Bits) as usize] == global.board {
-        global.cut = global.cut + 1;
-        return;
+    unsafe {
+        if *global.hash_array.get_unchecked((global.board % HASH_SIZE as Bits) as usize) == global.board {
+            global.cut = global.cut + 1;
+            return;
+        }
     }
-
     if global.nstack >= global.count {
         global.count = global.nstack;
         if global.nstack == global.tot - 1 {
@@ -155,7 +154,10 @@ fn gen(global: &mut Global) {
 
     let mut bits = global.board & BOARD_TO_LEFT;
     while bits != 0 {
-        let from = POW2[bits.bitscan_forward()];
+        let from;
+        unsafe {
+            from = *POW2.get_unchecked(bits.bitscan_forward());
+        }
         let capture = from << 1;
         if (global.board & capture) != 0 {
             let to = from << 2;
@@ -170,7 +172,10 @@ fn gen(global: &mut Global) {
 
     bits = global.board & BOARD_TO_RIGHT;
     while bits != 0 {
-        let from = POW2[bits.bitscan_forward()];
+        let from;
+        unsafe {
+            from = *POW2.get_unchecked(bits.bitscan_forward());
+        }
         let capture = from >> 1;
         if (global.board & capture) != 0 {
             let to = from >> 2;
@@ -185,7 +190,10 @@ fn gen(global: &mut Global) {
 
     bits = global.board & BOARD_TO_DOWN;
     while bits != 0 {
-        let from = POW2[bits.bitscan_forward()];
+        let from;
+        unsafe {
+            from = *POW2.get_unchecked(bits.bitscan_forward());
+        }
         let capture = from >> 8;
         if (global.board & capture) != 0 {
             let to = from >> 16;
@@ -200,9 +208,11 @@ fn gen(global: &mut Global) {
 
     bits = global.board & BOARD_TO_UP;
     while bits != 0 {
-        let from = POW2[bits.bitscan_forward()];
+        let from;
+        unsafe {
+            from = *POW2.get_unchecked(bits.bitscan_forward());
+        }
         let capture = from << 8;
-
         if (global.board & capture) != 0 {
             let to = from << 16;
             if (global.board & to) == 0 {
@@ -215,7 +225,9 @@ fn gen(global: &mut Global) {
     };
 
     if found == false {
-        global.hash_array[(global.board % HASH_SIZE as Bits) as usize] = global.board;
+        unsafe {
+            *global.hash_array.get_unchecked_mut((global.board % HASH_SIZE as Bits) as usize) = global.board;
+        }
     }
 }
 
@@ -229,11 +241,12 @@ fn main() {
         nstack: 0,
         tot: pop_count(INIT_BOARD),
         start_time: time::precise_time_ns(),
-        hash_array: Box::new([0; HASH_SIZE]),
+        hash_array: vec![0; HASH_SIZE],
         stack: [0; 64],
     };
 
     print(global.board);
+    global.start_time = time::precise_time_ns();
     gen(&mut global);
 }
 
@@ -248,7 +261,7 @@ fn makemove_test() {
         nstack: 0,
         tot: pop_count(INIT_BOARD),
         start_time: 0,
-        hash_array: Box::new([0; 0]),
+        hash_array: vec![0; 0],
         stack: [0; 64],
     };
     let from: Bits = 0x1000;
