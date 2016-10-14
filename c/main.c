@@ -36,6 +36,7 @@ int Nsolution, count, nstack, TOT;
 long start_time;
 u64 *hash_array;
 u64 stack[64];
+
 const int index64[64] = {
         0,  1, 48,  2, 57, 49, 28,  3,
         61, 58, 50, 42, 38, 29, 17,  4,
@@ -48,7 +49,6 @@ const int index64[64] = {
 };
 
 #if __WORDSIZE == 64
-
 static inline int BITScanForward(u64 bits) {
     return __builtin_ffsll(bits) - 1;
 }
@@ -79,7 +79,6 @@ const u64 POW2[64] = {0x1ULL, 0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL,
 
 void undomove() {
     nstack--;
-//    assert(nstack >= 0);
     board = stack[nstack];
 }
 
@@ -88,8 +87,6 @@ void makemove(const u64 from, const u64 to, const u64 capture) {
     board &= ~from;
     board |= to;
     board &= ~capture;
-
-//    assert(nstack < TOT);
     nstack++;
 }
 
@@ -108,7 +105,7 @@ long get_ms() {
     return (timebuffer.time * 1000) + timebuffer.millitm;
 }
 
-void print(u64 board) {return;
+void print(u64 board) {
 	int k;
     for (k = 64; k >= 1; k--) {
         if ((board & POW2[k - 1]) == 0) {
@@ -136,7 +133,6 @@ void print_stack() {
     printf("Nmoves: %llu Hash cut: %llu (%llu%%) ", nmoves, cut, cut * 100 / nmoves);
     printf("\nSolution# %d ms: %ld ----------------- end stack moves ------------------------  \n",
            Nsolution, time);
-	if (Nsolution==30)exit(0);
     
 }
 
