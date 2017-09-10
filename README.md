@@ -23,3 +23,9 @@ Chinese Checkers with bitboard hash
 
 `./ChineseCheckers`
 
+### scala:
+
+`cd scala`
+
+`sbt run`
+
