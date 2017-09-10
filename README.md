@@ -1,5 +1,14 @@
-# ChineseCheckers
-Chinese Checkers with bitboard hash
+# Chinese Checkers with bitboard hash
+
+    # # O O O # # #
+    # # O O O # # #
+    O O O O O O O #
+    O O O - O O O #
+    O O O O O O O #
+    # # O O O # # #
+    # # O O O # # #
+
+
 
 ### c:
 `gcc -O3 main.c -o checkers`
