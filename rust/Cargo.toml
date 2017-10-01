@@ -1,10 +1,10 @@
 [package]
 name = "checkers"
-version = "0.1.0"
-authors = ["gekomad <info@cinnamon.com>"]
+version = "0.1.1"
+authors = ["Giuseppe Cannella"]
 
 [dependencies]
-time = "0.1.35"
+time = "0.1.38"
 
 #[profile.release]
 #opt-level = 0
