@@ -1,4 +1,4 @@
-# Chinese Checkers with bitboard hash
+# Chinese Checkers with Bitboard Hash
 
     # # # # # # # #
     # # O O O # # #
