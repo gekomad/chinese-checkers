@@ -1,5 +1,6 @@
 # Chinese Checkers with bitboard hash
 
+    # # # # # # # #
     # # O O O # # #
     # # O O O # # #
     O O O O O O O #
@@ -9,14 +10,28 @@
     # # O O O # # #
 
 
+Each checkerboard is a 64-bit word where 'O' is 1-bit, '-' is 0-bit and '#' means space not available. With bitwise operators (AND , OR, etc) you can move the pieces.
 
-### c:
+We need of two checkerboards, the first one to set the pieces, the second to specify the terrain.
+
+The checkerboard up has these bits 00000000_00111000_00111000_11111110_11101110_11111110_00111000_00111000 and his exadecimal notation is 0x3838FEEEFE3838, the terrain is
+00111000_00111000_11111110_11111110_11111110_00111000_00111000 (0x3838FEFEFE3838).
+
+You can use the Bitmap Calculator (http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html) to manipulate the bit mask.
+
+To speed up the backtracking process, an Hash Table of 64-bit words is used.
+
+
+### C:
+
+`cd c`
+
 `gcc -O3 main.c -o checkers`
 
 `./checkers`
 
 
-### rust:
+### Rust:
 
 `cd rust`
 
@@ -24,15 +39,15 @@
 
 `./target/release/checkers`
 
-### vala:
+### Vala:
 
 `cd vala`
 
-`valac ChineseCheckers.vala --Xcc=-O3 `
+`valac ChineseCheckers.vala --Xcc=-O3 -o checkers `
 
-`./ChineseCheckers`
+`./checkers`
 
-### scala:
+### Pure functional Scala:
 
 `cd scala`
 

@@ -20,7 +20,7 @@ public class ChineseCheckers
   private uint64 nmoves;
   private uint64 cut;
 
-  const int HASH_SIZE = 122949823;
+  const int HASH_SIZE = 1229498;
 
 // Bitboard Calculator: http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html
 
@@ -32,7 +32,6 @@ public class ChineseCheckers
   private const uint64 BOARD_to_DOWN = 0x3838FE38380000ULL;
 
   private int Nsolution;
-  private int count;
   private int nstack;
   private int TOT;
 
@@ -45,9 +44,12 @@ public class ChineseCheckers
     const int[64]
       lsb_64_table =
       { 63, 30, 3, 32, 59, 14, 11, 33, 60, 24, 50, 9, 55, 19, 21, 34, 61, 29,
-2, 53, 51, 23, 41, 18, 56, 28, 1, 43, 46, 27, 0, 35, 62, 31, 58, 4, 5, 49, 54, 6,
-15, 52, 12, 40, 7, 42, 45, 16, 25, 57, 48, 13, 10, 39, 8, 44, 20, 47, 38, 22, 17,
-37, 36, 26 };
+      2, 53, 51, 23, 41, 18, 56, 28, 1, 43, 46, 27, 0, 35, 62, 31, 58, 4, 5,
+      49, 54, 6,
+      15, 52, 12, 40, 7, 42, 45, 16, 25, 57, 48, 13, 10, 39, 8, 44, 20, 47,
+      38, 22, 17,
+      37, 36, 26
+    };
 
     bb ^= bb - 1;
     uint folded = (int) bb ^ (bb >> 32);
@@ -105,7 +107,7 @@ public class ChineseCheckers
 
 
   int64 get_ms ()
-  {    
+  {
     int64 msec = GLib.get_real_time () / 1000;
 
     return msec;
@@ -133,8 +135,7 @@ public class ChineseCheckers
   {
     int64 time = get_ms () - start_time;
     Nsolution++;
-    stdout.
-      printf
+    stdout.printf
       ("\nSolution# %d ms: %lld ----------------- start stack moves ------------------------  \n",
        Nsolution, time);
     for (int i = 0; i < nstack; i++)
@@ -144,8 +145,7 @@ public class ChineseCheckers
     print (board);
     stdout.printf ("Nmoves: %llu Hash cut: %llu (%d%%) ", nmoves, cut,
 		   cut * 100 / nmoves);
-    stdout.
-      printf
+    stdout.printf
       ("\nSolution# %d ms: %lld ----------------- end stack moves ------------------------  \n",
        Nsolution, time);
 
@@ -156,7 +156,7 @@ public class ChineseCheckers
   {
 
     uint64 from, bits, capture;
-    int found = 0;
+
     if (((++nmoves) % 5000000000) == 0)
       {
 	stdout.printf ("Nmoves: %llu Cut:%llu (%d%%) ", nmoves, cut,
@@ -168,32 +168,12 @@ public class ChineseCheckers
 	cut++;
 	return;
       }
-    if (nstack >= count)
+
+    if (nstack == TOT - 1)
       {
-	count = nstack;
-	if (nstack == TOT - 1)
-	  {
-	    found = 1;
-	    print_stack ();
-	  }
+	print_stack ();
+	return;
       }
-    bits = board & BOARD_to_LEFT;
-    while (bits != 0)
-      {
-	from = POW2[BITScanForward (bits)];
-	capture = from << 1;
-	if ((board & capture) != 0)
-	  {
-	    uint64 to = from << 2;
-	    if ((board & to) == 0)
-	      {
-		makemove (from, to, capture);
-		gen ();
-		undomove ();
-	      }
-	  }
-	bits &= ~from;
-      };
 
     bits = board & BOARD_to_RIGHT;
     while (bits != 0)
@@ -213,23 +193,7 @@ public class ChineseCheckers
 	  };
 	bits &= ~from;
       }
-    bits = board & BOARD_to_DOWN;
-    while (bits != 0)
-      {
-	from = POW2[BITScanForward (bits)];
-	capture = from >> 8;
-	if ((board & capture) != 0)
-	  {
-	    uint64 to = from >> 16;
-	    if ((board & to) == 0)
-	      {
-		makemove (from, to, capture);
-		gen ();
-		undomove ();
-	      }
-	  }
-	bits &= ~from;
-      };
+
     bits = board & BOARD_to_UP;
     while (bits != 0)
       {
@@ -247,9 +211,44 @@ public class ChineseCheckers
 	  };
 	bits &= ~from;
       };
-    if (found == 0)
-      hash_array[board % HASH_SIZE] = board;
 
+    bits = board & BOARD_to_DOWN;
+    while (bits != 0)
+      {
+	from = POW2[BITScanForward (bits)];
+	capture = from >> 8;
+	if ((board & capture) != 0)
+	  {
+	    uint64 to = from >> 16;
+	    if ((board & to) == 0)
+	      {
+		makemove (from, to, capture);
+		gen ();
+		undomove ();
+	      }
+	  }
+	bits &= ~from;
+      };
+
+    bits = board & BOARD_to_LEFT;
+    while (bits != 0)
+      {
+	from = POW2[BITScanForward (bits)];
+	capture = from << 1;
+	if ((board & capture) != 0)
+	  {
+	    uint64 to = from << 2;
+	    if ((board & to) == 0)
+	      {
+		makemove (from, to, capture);
+		gen ();
+		undomove ();
+	      }
+	  }
+	bits &= ~from;
+      };
+
+    hash_array[board % HASH_SIZE] = board;
 
   }
 
@@ -257,7 +256,6 @@ public class ChineseCheckers
   {
     board = INIT_BOARD;
     nmoves = 0;
-    count = 0;
     nstack = 0;
     cut = 0;
     Nsolution = 0;

@@ -26,7 +26,7 @@ trait GameDef {
       y.printBoard
       println
     }
-    print(s"\nstack solution: $Nsolution ")
+    print(s"\nstack solution: $Nsolution | ")
     s.reverse.foreach(t => print("0x" + t.board.toHexString + "L, "))
 
     println(s"\n\nSolution# $Nsolution ms: $time Nmoves: $nmoves Hash cuts: $cut (${cut * 100 / nmoves}%) ----------- end stack moves ----------- ")
@@ -58,10 +58,7 @@ trait GameDef {
 
     def freeSquare(a: u64) = (a & board) == 0
 
-    def makemove(from: u64, to: u64, capture: u64, stack: List[Board]): (Board, List[Board]) = {
-      val x = copy(board = ((board & ~from) | to) & ~capture)
-      (x, x :: stack)
-    }
+
 
     def printBoard: Unit = {
       printBoard(63)
@@ -91,7 +88,8 @@ trait GameDef {
 
   }
 
-  var nmoves, cut: u64 = 0
+  var nmoves: u64 = 0
+  var cut: u64 = 0
   var Nsolution = 0
 
   val HASH_SIZE = 1229498
@@ -103,7 +101,7 @@ trait GameDef {
 
   val TOT: Int
 
-  val hash_array: LongBuffer
+  val hashArray: LongBuffer
 
   def pow2(a: Int) = math.pow(2, a).toLong
 

@@ -9,10 +9,10 @@ class ChineseCheckerSuite extends FunSuite {
   test("shift") {
 
     new Type1 {
-      override val start_time = 0
+      override val start_time = 0l
       val board = Board(0)
       override val TOT = board.popCount()
-      override val hash_array = LongBuffer.allocate(HASH_SIZE)
+      override val hashArray = LongBuffer.allocate(HASH_SIZE)
       assert(board.bitsStream(0, Right) == Stream.empty)
 
       val a = 100L
@@ -30,10 +30,10 @@ class ChineseCheckerSuite extends FunSuite {
   test("bitsStream") {
 
     new Type1 {
-      override val start_time = 0
+      override val start_time = 0l
       val board = Board(100)
       override val TOT = board.popCount()
-      override val hash_array = LongBuffer.allocate(HASH_SIZE)
+      override val hashArray = LongBuffer.allocate(HASH_SIZE)
       val o = for {
         l2 <- board.bitsStream(8, Right)
       } yield l2
@@ -47,27 +47,59 @@ class ChineseCheckerSuite extends FunSuite {
 
     new Type1 {
 
-      /**
-        * # # - - - # # #
-        * # # - - - # # #
-        * - - - - - - - #
-        * - - - - O O - #
-        * - - - - - - - #
-        * # # - - - # # #
-        * # # - - - # # #
-        **/
+      /*
+         # # # # # # # #
+         # # - - - # # #
+         # # - - - # # #
+         - - - - - - - #
+         - - - - O O - #
+         - - - - - - - #
+         # # - - - # # #
+         # # - - - # # #
+        */
 
       override val INIT_BOARD = 0xc000000L
       val board = Board(INIT_BOARD)
       override val TOT = board.popCount()
-      override val hash_array = LongBuffer.allocate(HASH_SIZE)
+      override val hashArray = LongBuffer.allocate(HASH_SIZE)
 
       board.printBoard
       println("\n------------------------")
       override val start_time = System.currentTimeMillis
-      val l: Stream[List[Board]] = gen(board, List())
+      val l: Stream[List[Board]] = gen((board,List.empty), Stream.empty)
 
-      assert(l.flatten == Stream(Board(33554432), Board(268435456)))
+      /*
+
+      solution: 1
+
+      # # # # # # # #
+      # # - - - # # #
+      # # - - - # # #
+      - - - - - - - #
+      - - - - - - O #
+      - - - - - - - #
+      # # - - - # # #
+      # # - - - # # #
+
+     solution: 2
+
+      # # # # # # # #
+      # # - - - # # #
+      # # - - - # # #
+      - - - - - - - #
+      - - - O - - - #
+      - - - - - - - #
+      # # - - - # # #
+      # # - - - # # #
+
+     */
+
+      l.foreach {
+        t =>
+          println("solution:")
+          t.reverse.foreach(println(_))
+      }
+      assert(l.toList == List(List(Board(33554432), Board(201326592)),List(Board(268435456), Board(201326592))))
 
     }
   }

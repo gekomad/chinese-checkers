@@ -1,6 +1,6 @@
 name := "chineseCheckers"
 
-scalaVersion := "2.12.3"
+scalaVersion := "2.12.5"
 
 scalacOptions ++= Seq("-deprecation")
 

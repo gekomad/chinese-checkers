@@ -21,7 +21,7 @@ typedef long long unsigned u64;
 
 u64 board, nmoves, cut;
 
-#define HASH_SIZE        122949823
+#define HASH_SIZE        1229498
 
 // Bitboard Calculator: http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html
 
@@ -32,7 +32,7 @@ u64 board, nmoves, cut;
 #define BOARD_to_UP      0x3838FE3838ULL
 #define BOARD_to_DOWN    0x3838FE38380000ULL
 
-int Nsolution, count, nstack, TOT;
+int Nsolution, nstack, TOT;
 long start_time;
 u64 *hash_array;
 u64 stack[64];
@@ -130,6 +130,11 @@ void print_stack() {
         print(stack[i]);
     }
     print(board);
+    printf("\nstack solution: %d | ",Nsolution);
+    for (i = 0; i < nstack; i++) {
+        printf("0x%llxL, ", stack[i]); 
+    }
+    
     printf("Nmoves: %llu Hash cut: %llu (%llu%%) ", nmoves, cut, cut * 100 / nmoves);
     printf("\nSolution# %d ms: %ld ----------------- end stack moves ------------------------  \n",
            Nsolution, time);
@@ -139,28 +144,27 @@ void print_stack() {
 void gen() {
 
     u64 from, bits, to, capture;
-    int found = 0;
+
     if (!((++nmoves) % 5000000000)) {
         printf("Nmoves: %llu Cut:%llu (%llu%%) ", nmoves, cut, cut * 100 / nmoves);
-       
     }
 
     if (hash_array[board % HASH_SIZE] == board) {
         cut++;
         return;
     }
-    if (nstack >= count) {
-        count = nstack;
-        if (nstack == TOT - 1) {
-            found = 1;
-            print_stack();
-        }
+ 
+    if (nstack == TOT - 1) {         
+         print_stack();
+         return;
     }
-    bits = board & BOARD_to_LEFT;
+    
+    bits = board & BOARD_to_RIGHT;
     while (bits) {
         from = POW2[BITScanForward(bits)];
-        capture = from << 1;
-        if (board & capture && !(board & (to = from << 2))) {
+
+        capture = from >> 1;
+        if (board & capture && !(board & (to = from >> 2))) {
             makemove(from, to, capture);
             gen();
             undomove();
@@ -168,12 +172,12 @@ void gen() {
         bits &= ~from;
     };
 
-    bits = board & BOARD_to_RIGHT;
+  
+  bits = board & BOARD_to_UP;
     while (bits) {
         from = POW2[BITScanForward(bits)];
-
-        capture = from >> 1;
-        if (board & capture && !(board & (to = from >> 2))) {
+        capture = from << 8;
+        if (board & capture && !(board & (to = from << 16))) {
             makemove(from, to, capture);
             gen();
             undomove();
@@ -193,29 +197,29 @@ void gen() {
         bits &= ~from;
     };
 
-    bits = board & BOARD_to_UP;
+    bits = board & BOARD_to_LEFT;
     while (bits) {
         from = POW2[BITScanForward(bits)];
-        capture = from << 8;
-        if (board & capture && !(board & (to = from << 16))) {
+        capture = from << 1;
+        if (board & capture && !(board & (to = from << 2))) {
             makemove(from, to, capture);
             gen();
             undomove();
         }
         bits &= ~from;
     };
-    if (!found)
-        hash_array[board % HASH_SIZE] = board;
+
+    hash_array[board % HASH_SIZE] = board;
 }
 
 int main(int argc, char *argv[]) {
     board = INIT_BOARD;
-    nmoves = count = nstack = cut = Nsolution = 0;
+    nmoves = nstack = cut = Nsolution = 0;
     TOT = popCount(board);
     hash_array = (u64 *) calloc(HASH_SIZE, sizeof(u64));
     print(board);
     start_time = get_ms();
     gen();
-	free(hash_array);
+    free(hash_array);
     return 0;
 }

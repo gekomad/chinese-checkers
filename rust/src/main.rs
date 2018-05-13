@@ -18,7 +18,7 @@ extern crate time;
 
 type Bits = u64;
 
-const HASH_SIZE: usize = 122949823;
+const HASH_SIZE: usize = 1229498;
 const INIT_BOARD: Bits = 0x3838FEEEFE3838;
 const BOARD: Bits = 0x3838FEFEFE3838;
 const BOARD_TO_RIGHT: Bits = 0x2020F8F8F82020;
@@ -31,7 +31,6 @@ struct Global {
     nmoves: u64,
     cut: u64,
     nsolution: isize,
-    count: isize,
     nstack: isize,
     tot: isize,
     start_time: u64,
@@ -131,8 +130,6 @@ fn print_stack(global: &mut Global) {
 }
 
 fn gen(global: &mut Global) {
-    let mut found = false;
-
     global.nmoves = global.nmoves + 1;
     if global.nmoves % 5000000000 == 0 {
         print!("Nmoves: {} Cut:{} ({}%) ", global.nmoves, global.cut, global.cut * 100 / global.nmoves);
@@ -141,100 +138,93 @@ fn gen(global: &mut Global) {
     if global.hash_array[(global.board % HASH_SIZE as Bits) as usize] == global.board {
         global.cut = global.cut + 1;
     } else {
-        if global.nstack >= global.count {
-            global.count = global.nstack;
-            if global.nstack == global.tot - 1 {
-                found = true;
-                print_stack(global);
-            }
-        }
+        if global.nstack == global.tot - 1 {
+            print_stack(global);
+        } else {
+            let mut bits = global.board & BOARD_TO_RIGHT;
+            while bits != 0 {
+                let from;
 
-        let mut bits = global.board & BOARD_TO_LEFT;
-        while bits != 0 {
-            let from;
+                from = POW2[bits.bitscan_forward()];
 
-            from = POW2[bits.bitscan_forward()];
-
-            let capture = from << 1;
-            if (global.board & capture) != 0 {
-                let to = from << 2;
-                if (global.board & to) == 0 {
-                    makemove(from, to, capture, global);
-                    gen(global);
-                    undomove(global);
+                let capture = from >> 1;
+                if (global.board & capture) != 0 {
+                    let to = from >> 2;
+                    if (global.board & to) == 0 {
+                        makemove(from, to, capture, global);
+                        gen(global);
+                        undomove(global);
+                    }
                 }
+                bits &= !from;
             }
-            bits &= !from;
-        }
 
-        bits = global.board & BOARD_TO_RIGHT;
-        while bits != 0 {
-            let from;
+            bits = global.board & BOARD_TO_UP;
+            while bits != 0 {
+                let from;
 
-            from = POW2[bits.bitscan_forward()];
+                from = POW2[bits.bitscan_forward()];
 
-            let capture = from >> 1;
-            if (global.board & capture) != 0 {
-                let to = from >> 2;
-                if (global.board & to) == 0 {
-                    makemove(from, to, capture, global);
-                    gen(global);
-                    undomove(global);
+                let capture = from << 8;
+                if (global.board & capture) != 0 {
+                    let to = from << 16;
+                    if (global.board & to) == 0 {
+                        makemove(from, to, capture, global);
+                        gen(global);
+                        undomove(global);
+                    }
                 }
+                bits &= !from;
             }
-            bits &= !from;
-        }
 
-        bits = global.board & BOARD_TO_DOWN;
-        while bits != 0 {
-            let from;
+            bits = global.board & BOARD_TO_DOWN;
+            while bits != 0 {
+                let from;
 
-            from = POW2[bits.bitscan_forward()];
+                from = POW2[bits.bitscan_forward()];
 
-            let capture = from >> 8;
-            if (global.board & capture) != 0 {
-                let to = from >> 16;
-                if (global.board & to) == 0 {
-                    makemove(from, to, capture, global);
-                    gen(global);
-                    undomove(global)
+                let capture = from >> 8;
+                if (global.board & capture) != 0 {
+                    let to = from >> 16;
+                    if (global.board & to) == 0 {
+                        makemove(from, to, capture, global);
+                        gen(global);
+                        undomove(global)
+                    }
                 }
+                bits &= !from
             }
-            bits &= !from
-        }
 
-        bits = global.board & BOARD_TO_UP;
-        while bits != 0 {
-            let from;
 
-            from = POW2[bits.bitscan_forward()];
+            bits = global.board & BOARD_TO_LEFT;
+            while bits != 0 {
+                let from;
 
-            let capture = from << 8;
-            if (global.board & capture) != 0 {
-                let to = from << 16;
-                if (global.board & to) == 0 {
-                    makemove(from, to, capture, global);
-                    gen(global);
-                    undomove(global);
+                from = POW2[bits.bitscan_forward()];
+
+                let capture = from << 1;
+                if (global.board & capture) != 0 {
+                    let to = from << 2;
+                    if (global.board & to) == 0 {
+                        makemove(from, to, capture, global);
+                        gen(global);
+                        undomove(global);
+                    }
                 }
+                bits &= !from;
             }
-            bits &= !from;
-        }
 
-        if found == false {
             global.hash_array[(global.board % HASH_SIZE as Bits) as usize] = global.board
         }
     }
 }
 
 fn main() {
-
     let mut global = Global {
         board: INIT_BOARD,
         nmoves: 0,
         cut: 0,
         nsolution: 0,
-        count: 0,
         nstack: 0,
         tot: pop_count(INIT_BOARD),
         start_time: time::precise_time_ns(),
@@ -254,7 +244,6 @@ fn makemove_test() {
         nmoves: 0,
         cut: 0,
         nsolution: 0,
-        count: 0,
         nstack: 0,
         tot: pop_count(INIT_BOARD),
         start_time: 0,
