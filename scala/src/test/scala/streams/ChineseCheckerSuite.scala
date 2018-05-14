@@ -1,19 +1,15 @@
 package streams
 
-import java.nio.LongBuffer
-
+import chineseCheckers.solver.{GameDef, Solver}
 import org.scalatest.FunSuite
 
 class ChineseCheckerSuite extends FunSuite {
 
   test("shift") {
 
-    new Type1 {
-      override val start_time = 0l
-      val board = Board(0)
-      override val TOT = board.popCount()
-      override val hashArray = LongBuffer.allocate(HASH_SIZE)
-      assert(board.bitsStream(0, Right) == Stream.empty)
+    new GameDef(HASH_SIZE = 1, INIT_BOARD = 0, TERRAIN = 0x3838FEFEFE3838L) with Solver {
+
+      assert(bitsStream(0, 0, Right) == Stream.empty)
 
       val a = 100L
       val b = a >>> 1
@@ -29,13 +25,10 @@ class ChineseCheckerSuite extends FunSuite {
 
   test("bitsStream") {
 
-    new Type1 {
-      override val start_time = 0l
-      val board = Board(100)
-      override val TOT = board.popCount()
-      override val hashArray = LongBuffer.allocate(HASH_SIZE)
+    new GameDef(HASH_SIZE = 1, INIT_BOARD = 100, TERRAIN = 0x3838FEFEFE3838L) with Solver {
+
       val o = for {
-        l2 <- board.bitsStream(8, Right)
+        l2 <- bitsStream(100, 8, Right)
       } yield l2
 
       assert(List((8, (4, 2))) == o.toList)
@@ -45,8 +38,8 @@ class ChineseCheckerSuite extends FunSuite {
 
   test("solution") {
 
-    new Type1 {
 
+    new GameDef(HASH_SIZE = 1, INIT_BOARD = 0xc000000L, TERRAIN = 0x3838FEFEFE3838L) with Solver {
       /*
          # # # # # # # #
          # # - - - # # #
@@ -58,15 +51,10 @@ class ChineseCheckerSuite extends FunSuite {
          # # - - - # # #
         */
 
-      override val INIT_BOARD = 0xc000000L
-      val board = Board(INIT_BOARD)
-      override val TOT = board.popCount()
-      override val hashArray = LongBuffer.allocate(HASH_SIZE)
-
-      board.printBoard
+      printBoard(board)
       println("\n------------------------")
-      override val start_time = System.currentTimeMillis
-      val l: Stream[List[Board]] = gen((board,List.empty), Stream.empty)
+      override val startTime = System.currentTimeMillis
+      val l: Stream[List[Long]] = gen((board, List.empty), Stream.empty)
 
       /*
 
@@ -99,7 +87,7 @@ class ChineseCheckerSuite extends FunSuite {
           println("solution:")
           t.reverse.foreach(println(_))
       }
-      assert(l.toList == List(List(Board(33554432), Board(201326592)),List(Board(268435456), Board(201326592))))
+      assert(l.toList == List(List(33554432, 201326592), List(268435456, 201326592)))
 
     }
   }

@@ -1,10 +1,10 @@
 name := "chineseCheckers"
 
-scalaVersion := "2.12.5"
+scalaVersion := "2.12.6"
 
 scalacOptions ++= Seq("-deprecation")
 
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.4" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 
 //-Xss2000m
