@@ -21,12 +21,30 @@ You can use the Bitmap Calculator (http://cinnamonchess.altervista.org/bitboard_
 
 To speed up the backtracking process, an Hash Table of 64-bit words is used.
 
+| Lang   |      speed x      |
+|----------|:-------------:|
+| Scala | 1 |
+| vala | 16 |
+| rust | 20 |
+| c | 21 |
+| c++ 1 thread | 20 |
+| c++ 2 thread | 22 |
+| c++ 4 thread | 20 |
+| c++ 8 thread | 10 |
 
 ### C:
 
 `cd c`
 
 `gcc -O3 main.c -o checkers`
+
+`./checkers`
+
+### C++:
+
+`cd cpp`
+
+`g++ -O3 main.cpp -pthread -o checkers`
 
 `./checkers`
 
