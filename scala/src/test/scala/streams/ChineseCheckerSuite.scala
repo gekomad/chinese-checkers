@@ -1,13 +1,16 @@
 package streams
 
-import chineseCheckers.solver.{GameDef, Solver}
+import chineseCheckers.solver.{GameDef, Puzzle, Solver}
 import org.scalatest.FunSuite
+
+import scala.annotation.tailrec
+import scala.util.Random
 
 class ChineseCheckerSuite extends FunSuite {
 
   test("shift") {
 
-    new GameDef(HASH_SIZE = 1, INIT_BOARD = 0, TERRAIN = 0x3838FEFEFE3838L) with Solver {
+    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838FEFEFE3838L) with Solver {
 
       assert(bitsStream(0, 0, Right) == Stream.empty)
 
@@ -25,7 +28,7 @@ class ChineseCheckerSuite extends FunSuite {
 
   test("bitsStream") {
 
-    new GameDef(HASH_SIZE = 1, INIT_BOARD = 100, TERRAIN = 0x3838FEFEFE3838L) with Solver {
+    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838FEFEFE3838L) with Solver {
 
       val o = for {
         l2 <- bitsStream(100, 8, Right)
@@ -39,7 +42,7 @@ class ChineseCheckerSuite extends FunSuite {
   test("solution") {
 
 
-    new GameDef(HASH_SIZE = 1, INIT_BOARD = 0xc000000L, TERRAIN = 0x3838FEFEFE3838L) with Solver {
+    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838FEFEFE3838L) with Solver {
       /*
          # # # # # # # #
          # # - - - # # #
@@ -50,11 +53,11 @@ class ChineseCheckerSuite extends FunSuite {
          # # - - - # # #
          # # - - - # # #
         */
-
-      printBoard(board)
+      val INIT_BOARD = 0xc000000L
+      printBoard(INIT_BOARD)
       println("\n------------------------")
       override val startTime = System.currentTimeMillis
-      val l: Stream[List[Long]] = gen((board, List.empty), Stream.empty)
+      val l: Stream[List[Long]] = gen((INIT_BOARD, List.empty), Stream.empty, popCount(INIT_BOARD))
 
       /*
 
@@ -89,6 +92,48 @@ class ChineseCheckerSuite extends FunSuite {
       }
       assert(l.toList == List(List(33554432, 201326592), List(268435456, 201326592)))
 
+    }
+  }
+
+  test("puzzle") {
+
+    val T = 0x3838FEFEFE3838L
+    new GameDef(HASH_SIZE = 1, TERRAIN = T) with Puzzle {
+      /*
+       # # # # # # # #
+       # # - - - # # #
+       # # - - - # # #
+       - - - - - - - #
+       - - - - - - - #
+       - - - - - - - #
+       # # - - - # # #
+       # # - - - # # #
+      */
+
+      println("\n------------------------------")
+      override val startTime = System.currentTimeMillis
+      val nPieces = 5
+
+      def getSol(TERRAIN: Long, nPieces: Int, count: Int): Option[Long] = {
+        if (count <= 0) None
+        val l = puzzle(randomBit(TERRAIN), nPieces)
+        l.fold(getSol(TERRAIN, nPieces, count - 1)){_ => l}
+      }
+
+      val sol1 = getSol(TERRAIN, nPieces, 5)
+      sol1.fold(println("no solutions")) { sol =>
+        printBoard(sol)
+        assert(popCount(sol) == nPieces)
+
+        new GameDef(HASH_SIZE = 1229498, TERRAIN = T) with Solver {
+          printBoard(sol)
+          maxSolution = 1
+          override val startTime = System.currentTimeMillis
+          val l: Stream[List[Long]] = gen((sol, List.empty), Stream.empty, popCount(sol))
+          println(s"n solutions: ${l.size}")
+          assert(l.size > 0)
+        }
+      }
     }
   }
 
