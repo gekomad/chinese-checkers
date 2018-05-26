@@ -5,7 +5,6 @@ import scala.annotation.tailrec
 trait Puzzle extends GameDef {
 
   def puzzle(bits: Long, nPieces: Int): Option[Long] = {
-    //require(bits > 0)
     require(nPieces > 1)
     require(nPieces < popCount(TERRAIN))
 

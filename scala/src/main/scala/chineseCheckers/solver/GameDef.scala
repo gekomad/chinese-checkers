@@ -23,20 +23,17 @@ abstract class GameDef(val HASH_SIZE: Int, val TERRAIN: Long) {
   type To = Long
 
   def next(bits: Long): Long = {
-    assert((bits & TERRAIN) == bits)
 
     //@tailrec
     def go(bits: Long, count: Int): Long = if (bits == 0) 0 else {
 
       assert((bits & TERRAIN) == bits)
       if (count > 500) 0 else {
-        val rand: Option[((Captured, From, To), Move)] = randomDirection(bits)
+        val rand: Option[(Captured, From, To)] = randomDirection(bits)
         rand.map(move => {
 
-          val (captured, from, to) = (move._1._1, move._1._2, move._1._3)
-          assert((captured & TERRAIN) == captured)
-          assert((from & TERRAIN) == from)
-          assert((to & TERRAIN) == to)
+          val (captured, from, to) = (move._1, move._2, move._3)
+
           if ((from & TERRAIN) != 0 && (captured & TERRAIN) != 0 && freeSquare(bits, captured) && freeSquare(bits, from))
             (bits | from | captured) & ~to
           else go(bits, count + 1)
@@ -52,19 +49,18 @@ abstract class GameDef(val HASH_SIZE: Int, val TERRAIN: Long) {
 
   def random(l: List[Int]) = l(Random.nextInt(l.size))
 
-  def randomDirection(board: Long): Option[((Captured, From, To), Move)] = {
-    assert((board & TERRAIN) == board)
+  def randomDirection(board: Long): Option[(Captured, From, To)] = {
 
-    def go(to: Long, directions: List[Int]): Option[((Captured, From, To), Move)] =
+    def go(to: Long, directions: List[Int]): Option[(Captured, From, To)] =
       if (directions.isEmpty) None else
         random(directions) match {
-          case 0 => if ((to >>> 1 & BOARD_to_LEFT) != 0 && (to >>> 2 & BOARD_to_LEFT & TERRAIN) != 0) Some(((to >>> 1, to >>> 2, to), Right)) else go(to, directions diff List(0))
-          case 1 => if ((to << 8 & BOARD_to_DOWN) != 0 && (to << 16 & BOARD_to_DOWN & TERRAIN) != 0) Some(((to << 8, to << 16, to), Right)) else go(to, directions diff List(1))
-          case 2 => if ((to >>> 8 & BOARD_to_UP) != 0 && (to >>> 16 & BOARD_to_UP & TERRAIN) != 0) Some(((to >>> 8, to >>> 16, to), Right)) else go(to, directions diff List(2))
-          case 3 => if ((to << 1 & BOARD_to_RIGHT) != 0 && (to << 2 & BOARD_to_RIGHT & TERRAIN) != 0) Some(((to << 1, to << 2, to), Right)) else go(to, directions diff List(3))
+          case 0 => if ((to >>> 1 & BOARD_to_LEFT) != 0 && (to >>> 2 & BOARD_to_LEFT) != 0) Some(((to >>> 1, to >>> 2, to))) else go(to, directions diff List(0))
+          case 1 => if ((to << 8 & BOARD_to_DOWN) != 0 && (to << 16 & BOARD_to_DOWN) != 0) Some(((to << 8, to << 16, to))) else go(to, directions diff List(1))
+          case 2 => if ((to >>> 8 & BOARD_to_UP) != 0 && (to >>> 16 & BOARD_to_UP) != 0) Some(((to >>> 8, to >>> 16, to))) else go(to, directions diff List(2))
+          case 3 => if ((to << 1 & BOARD_to_RIGHT) != 0 && (to << 2 & BOARD_to_RIGHT) != 0) Some(((to << 1, to << 2, to))) else go(to, directions diff List(3))
         }
 
-    def m(randomList: List[Long]): Option[((Captured, From, To), Move)] = {
+    def m(randomList: List[Long]): Option[(Captured, From, To)] = {
       if (randomList.isEmpty) None else {
         val p = go(randomList.head, List(0, 1, 2, 3))
         if (p == None) m(randomList.tail) else p
@@ -75,13 +71,6 @@ abstract class GameDef(val HASH_SIZE: Int, val TERRAIN: Long) {
 
     val move1 = m(bitsList)
 
-    move1.map { move => //TODO eliminare tuttu gli assert
-      val (captured, from, to) = (move._1._1, move._1._2, move._1._3)
-
-      assert((to & TERRAIN) == to)
-      assert((from & TERRAIN) == from)
-      assert((to & TERRAIN) == to)
-    }
     move1
   }
 
@@ -155,10 +144,7 @@ abstract class GameDef(val HASH_SIZE: Int, val TERRAIN: Long) {
       printBoard(board, k - 1)
   }
 
-  @tailrec
-  final def popCount(board: Long, count: Int = 0): Int =
-    if (board == 0) count
-    else popCount(board & (board - 1), count + 1)
+  final def popCount(board: Long, count: Int = 0): Int = java.lang.Long.bitCount(board)
 
   val hashArray: LongBuffer = LongBuffer.allocate(HASH_SIZE)
 
