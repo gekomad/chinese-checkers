@@ -4,11 +4,12 @@ import static java.lang.Math.pow;
 
 class ChineseCheckers {
 
-    protected long board;
-    private long[] stack = new long[64];
-    private int TOT, nstack = 0;
+    private long board;
+    private final long[] stack = new long[64];
+    private final int TOT;
+    private int nstack = 0;
 
-    private int HASH_SIZE = 1229498;
+    private final int HASH_SIZE = 1229498;
 
 // Bitboard Calculator: http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html
 
@@ -16,17 +17,17 @@ class ChineseCheckers {
         RIGHT, LEFT, UP, DOWN
     }
 
-    protected long TERRAIN;
+    final long TERRAIN;
 
-    protected long BOARD_to_RIGHT;
-    protected long BOARD_to_LEFT;
-    protected long BOARD_to_UP;
-    protected long BOARD_to_DOWN;
-    protected int maxSolutions = 1000000000;
+    final long BOARD_to_RIGHT;
+    final long BOARD_to_LEFT;
+    final long BOARD_to_UP;
+    final long BOARD_to_DOWN;
+    private int maxSolutions = 1000000000;
     private int Nsolution;
-    private long startTime;
+    private final long startTime;
 
-    private long[] hashArray = new long[HASH_SIZE];
+    private final long[] hashArray = new long[HASH_SIZE];
 
     private long nmoves = 0, cut = 0;
 
@@ -42,7 +43,7 @@ class ChineseCheckers {
         startTime = System.currentTimeMillis();
     }
 
-    static public long BITScanForward(long b) {
+    static long BITScanForward(long b) {
         return (b ^ (b & b - 1));
     }
 
@@ -68,7 +69,7 @@ class ChineseCheckers {
         return Long.bitCount(board);
     }
 
-    void makemove(long from, long to, long capture) {
+    private void makemove(long from, long to, long capture) {
         stack[nstack] = board;
         board &= ~from;
         board |= to;
@@ -76,7 +77,7 @@ class ChineseCheckers {
         nstack++;
     }
 
-    void undomove() {
+    private void undomove() {
         nstack--;
         board = stack[nstack];
     }
@@ -149,7 +150,7 @@ class ChineseCheckers {
         hashArray[(int) (board % HASH_SIZE)] = board;
     }
 
-    void print_stack() {
+    private void print_stack() {
         long time = System.currentTimeMillis() - startTime;
         Nsolution++;
         System.out.println("\nSolution# " + Nsolution + " ms: " + time + " ----------------- start stack moves ------------------------");

@@ -3,13 +3,12 @@ package com.github.gekomad.chinesecheckers;
 import java.util.*;
 
 
-public class Puzzle extends ChineseCheckers {
+class Puzzle extends ChineseCheckers {
 
-    private int MAX_PIECES;
+    private final int MAX_PIECES;
     private long found;
-    private List<Move> moves = new ArrayList<Move>(4);
+    private final List<Move> moves = new ArrayList<Move>(4);
     private long start;
-    private int seconds = 5 * 1000;
 
     public Puzzle(long terrain, int maxPieces) {
         super(0, terrain);
@@ -20,7 +19,7 @@ public class Puzzle extends ChineseCheckers {
         moves.add(Move.RIGHT);
     }
 
-    static List<Long> shufflePieces(long bits) {
+    private static List<Long> shufflePieces(long bits) {
         List<Long> l = new ArrayList<Long>();
         while (bits != 0) {
             long from = BITScanForward(bits);
@@ -31,7 +30,7 @@ public class Puzzle extends ChineseCheckers {
         return l;
     }
 
-    FromToCaptured randomMove(long to, List<ChineseCheckers.Move> moves) {
+    private FromToCaptured randomMove(long to, List<ChineseCheckers.Move> moves) {
         if (moves.isEmpty()) return null;
         ChineseCheckers.Move n = moves.get(new Random().nextInt(moves.size()));
         switch (n) {
@@ -66,6 +65,7 @@ public class Puzzle extends ChineseCheckers {
                     moves.remove(Move.LEFT);
                     randomMove(to, moves);
                 }
+                break;
             default:
                 return null;
         }
@@ -86,8 +86,9 @@ public class Puzzle extends ChineseCheckers {
     }
 
     private void puzzle(long bits, int count) {
+
         //print(bits);
-        if (count > 200 || exceedTime()) return;
+        if (count > 200 || exceedTime() || found != 0) return;
         if (popCount(bits) >= MAX_PIECES) {
 //            print(bits);
             found = bits;
@@ -96,9 +97,10 @@ public class Puzzle extends ChineseCheckers {
         List<Long> ll = shufflePieces(bits);
 
         for (long l : ll) {
+
+            print(l);
             if (found == 0) {
-                List<Move> moves2 = new ArrayList<Move>();
-                moves2.addAll(moves);
+                List<Move> moves2 = new ArrayList<Move>(moves);
 
                 FromToCaptured fromTo = randomMove(l, moves2);
                 if (fromTo != null) {
@@ -112,6 +114,7 @@ public class Puzzle extends ChineseCheckers {
     }
 
     private boolean exceedTime() {
+        int seconds = 5 * 1000;
         return ((new Date()).getTime() - start) > seconds;
     }
 
