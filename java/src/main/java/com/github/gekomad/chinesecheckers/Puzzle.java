@@ -30,40 +30,40 @@ class Puzzle extends ChineseCheckers {
         return l;
     }
 
-    private FromToCaptured randomMove(long to, List<ChineseCheckers.Move> moves) {
+    private FromToCaptured randomMove(long to, List<ChineseCheckers.Move> moves,long board) {
         if (moves.isEmpty()) return null;
         ChineseCheckers.Move n = moves.get(new Random().nextInt(moves.size()));
         switch (n) {
             case RIGHT:
-                if ((to >>> 1 & BOARD_to_LEFT) != 0 && (to >>> 2 & BOARD_to_LEFT) != 0)
+                if ((to >>> 1 & BOARD_to_LEFT & board) == 0 && (to >>> 1 & TERRAIN) != 0 && (to >>> 2 & BOARD_to_LEFT & board) == 0 && (to >>> 2 & TERRAIN) != 0)
                     return new FromToCaptured(to >>> 1, to >>> 2, to);
                 else {
                     moves.remove(ChineseCheckers.Move.RIGHT);
-                    randomMove(to, moves);
+                    randomMove(to, moves,board);
                 }
                 break;
             case UP:
-                if ((to << 8 & BOARD_to_DOWN) != 0 && (to << 16 & BOARD_to_DOWN) != 0)
+                if ((to << 8 & BOARD_to_DOWN & board) == 0 && (to << 8 & TERRAIN) != 0 && (to << 16 & BOARD_to_DOWN & board) == 0 && (to << 16 & TERRAIN) != 0)
                     return new FromToCaptured(to << 8, to << 16, to);
                 else {
                     moves.remove(ChineseCheckers.Move.UP);
-                    randomMove(to, moves);
+                    randomMove(to, moves,board);
                 }
                 break;
             case DOWN:
-                if ((to >>> 8 & BOARD_to_UP) != 0 && (to >>> 16 & BOARD_to_UP) != 0)
+                if ((to >>> 8 & BOARD_to_UP & board) == 0 && (to >>> 8 & TERRAIN) != 0 && (to >>> 16 & BOARD_to_UP & board) == 0 && (to >>> 16 & TERRAIN) != 0)
                     return new FromToCaptured(to >>> 8, to >>> 16, to);
                 else {
                     moves.remove(Move.DOWN);
-                    randomMove(to, moves);
+                    randomMove(to, moves,board);
                 }
                 break;
             case LEFT:
-                if ((to << 1 & BOARD_to_RIGHT) != 0 && (to << 2 & BOARD_to_RIGHT) != 0)
+                if ((to << 1 & BOARD_to_RIGHT & board) == 0 && (to << 1 & TERRAIN) != 0 && (to << 2 & BOARD_to_RIGHT & board) == 0 && (to << 2 & TERRAIN) != 0)
                     return new FromToCaptured(to << 1, to << 2, to);
                 else {
                     moves.remove(Move.LEFT);
-                    randomMove(to, moves);
+                    randomMove(to, moves ,board);
                 }
                 break;
             default:
@@ -87,8 +87,9 @@ class Puzzle extends ChineseCheckers {
 
     private void puzzle(long bits, int count) {
 
-        //print(bits);
-        if (count > 200 || exceedTime() || found != 0) return;
+        System.out.println("count " + count);
+        print(bits);
+        //if (count > 200 || exceedTime() || found != 0) return;
         if (popCount(bits) >= MAX_PIECES) {
 //            print(bits);
             found = bits;
@@ -98,11 +99,11 @@ class Puzzle extends ChineseCheckers {
 
         for (long l : ll) {
 
-            print(l);
+            //print(l);
             if (found == 0) {
                 List<Move> moves2 = new ArrayList<Move>(moves);
 
-                FromToCaptured fromTo = randomMove(l, moves2);
+                FromToCaptured fromTo = randomMove(l, moves2,bits);
                 if (fromTo != null) {
                     bits |= fromTo.getFrom();
                     bits |= fromTo.getCaptured();

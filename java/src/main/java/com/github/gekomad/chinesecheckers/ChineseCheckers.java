@@ -19,10 +19,10 @@ class ChineseCheckers {
 
     final long TERRAIN;
 
-    final long BOARD_to_RIGHT;
-    final long BOARD_to_LEFT;
-    final long BOARD_to_UP;
-    final long BOARD_to_DOWN;
+    final long BOARD_to_RIGHT = 0x2020F8F8F82020L;
+    final long BOARD_to_LEFT = 0x8083E3E3E0808L;
+    final long BOARD_to_UP = 0x3838FE3838L;
+    final long BOARD_to_DOWN = 0x3838FE38380000L;
     private int maxSolutions = 1000000000;
     private int Nsolution;
     private final long startTime;
@@ -36,10 +36,7 @@ class ChineseCheckers {
         TOT = popCount(board);
         TERRAIN = t;
 
-        BOARD_to_RIGHT = 0x2020F8F8F82020L & TERRAIN;
-        BOARD_to_LEFT = 0x8083E3E3E0808L & TERRAIN;
-        BOARD_to_UP = 0x3838FE3838L & TERRAIN;
-        BOARD_to_DOWN = 0x3838FE38380000L & TERRAIN;
+
         startTime = System.currentTimeMillis();
     }
 
@@ -63,6 +60,7 @@ class ChineseCheckers {
             if ((k - 1) % 8 == 0)
                 System.out.println();
         }
+        System.out.println(board);
     }
 
     int popCount(long board) {
