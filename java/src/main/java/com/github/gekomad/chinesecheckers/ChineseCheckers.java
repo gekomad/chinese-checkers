@@ -31,14 +31,16 @@ class ChineseCheckers {
 
     private long nmoves = 0, cut = 0;
 
+
     ChineseCheckers(long i, long t) {
         board = i;
         TOT = popCount(board);
         TERRAIN = t;
-        BOARD_to_RIGHT = 0xfcfcfcfcfcfcfcfcL & TERRAIN;
-        BOARD_to_LEFT = 0x3f3f3f3f3f3f3f3fL & TERRAIN;
-        BOARD_to_UP = 0xffffffffffffL & TERRAIN;
-        BOARD_to_DOWN = 0xffffffffffff0000L & TERRAIN;
+        BOARD_to_RIGHT = (TERRAIN << 2) & 0xfcfcfcfcfcfcfcfcL & TERRAIN;
+        BOARD_to_LEFT = (TERRAIN >>> 2) & 0x3f3f3f3f3f3f3f3fL & TERRAIN;
+        BOARD_to_DOWN = (TERRAIN << 16) & TERRAIN;
+        BOARD_to_UP = (TERRAIN >>> 16) & TERRAIN;
+
         startTime = System.currentTimeMillis();
     }
 
@@ -50,7 +52,7 @@ class ChineseCheckers {
         this.maxSolutions = maxSolutions;
     }
 
-    public static void print(long board,long TERRAIN) {
+    public static void print(long board, long TERRAIN) {
         for (int k = 63; k >= 1; k--) {
             if ((k == 63 && (0x8000000000000000L & board) == 0) || k != 63 && (board & (long) pow(2, k)) == 0) {
                 if ((k == 63 && (0x8000000000000000L & TERRAIN) == 0) || k != 63 && (TERRAIN & (long) pow(2, k)) == 0)
@@ -59,7 +61,7 @@ class ChineseCheckers {
                     System.out.print("-\t");
             } else
                 System.out.print("O\t");
-            if ((k ) % 8 == 0)
+            if ((k) % 8 == 0)
                 System.out.println();
         }
         System.out.println(board);
@@ -82,8 +84,8 @@ class ChineseCheckers {
         board = stack[nstack];
     }
 
-    void gen() {       
-        _gen();       
+    void gen() {
+        _gen();
     }
 
     private void _gen() {
@@ -93,15 +95,15 @@ class ChineseCheckers {
             System.out.println("Nmoves: " + nmoves + " cut: " + cut + " " + cut * 100 / nmoves + "%");
         }
 
-        int x=(int) Math.abs(board % HASH_SIZE);
-      
+        int x = (int) Math.abs(board % HASH_SIZE);
+
         if (hashArray[x] == board) {
             cut++;
             return;
         }
 
         if (nstack == TOT - 1) {
-            printStack();           
+            printStack();
             return;
         }
 
