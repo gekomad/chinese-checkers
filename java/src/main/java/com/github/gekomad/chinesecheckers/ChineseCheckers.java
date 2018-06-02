@@ -19,10 +19,10 @@ class ChineseCheckers {
 
     final long TERRAIN;
 
-    final long BOARD_to_RIGHT = 0x2020F8F8F82020L;
-    final long BOARD_to_LEFT = 0x8083E3E3E0808L;
-    final long BOARD_to_UP = 0x3838FE3838L;
-    final long BOARD_to_DOWN = 0x3838FE38380000L;
+    long BOARD_to_RIGHT ;
+    long BOARD_to_LEFT ;
+    long BOARD_to_UP ;
+    long BOARD_to_DOWN ;
     private int maxSolutions = 1000000000;
     private int Nsolution;
     private final long startTime;
@@ -35,8 +35,10 @@ class ChineseCheckers {
         board = i;
         TOT = popCount(board);
         TERRAIN = t;
-
-
+        BOARD_to_RIGHT = 0xfcfcfcfcfcfcfcfcL & TERRAIN;
+        BOARD_to_LEFT = 0x3f3f3f3f3f3f3f3fL & TERRAIN;
+        BOARD_to_UP = 0xffffffffffffL & TERRAIN;
+        BOARD_to_DOWN = 0xffffffffffff0000L & TERRAIN;
         startTime = System.currentTimeMillis();
     }
 
@@ -48,16 +50,16 @@ class ChineseCheckers {
         this.maxSolutions = maxSolutions;
     }
 
-    void print(long board) {
+    public static void print(long board,long TERRAIN) {
         for (int k = 63; k >= 1; k--) {
-            if ((board & (long) pow(2, k - 1)) == 0) {
-                if ((TERRAIN & (long) pow(2, k - 1)) == 0)
+            if ((k == 63 && (0x8000000000000000L & board) == 0) || k != 63 && (board & (long) pow(2, k)) == 0) {
+                if ((k == 63 && (0x8000000000000000L & TERRAIN) == 0) || k != 63 && (TERRAIN & (long) pow(2, k)) == 0)
                     System.out.print(" \t");
                 else
                     System.out.print("-\t");
             } else
                 System.out.print("O\t");
-            if ((k - 1) % 8 == 0)
+            if ((k ) % 8 == 0)
                 System.out.println();
         }
         System.out.println(board);
@@ -80,20 +82,25 @@ class ChineseCheckers {
         board = stack[nstack];
     }
 
-    void gen() {
+    long[] gen() {
+        _gen();
+        return stack;
+    }
+
+    private void _gen() {
         if (Nsolution >= maxSolutions) return;
         long from, bits, to, capture;
         if (0 == ((++nmoves) % 50000000L)) {
             System.out.println("Nmoves: " + nmoves + " cut: " + cut + " " + cut * 100 / nmoves + "%");
         }
 
-        if (hashArray[(int) (board % HASH_SIZE)] == board) {
+        if (hashArray[(int) (Math.abs(board) % HASH_SIZE)] == board) {
             cut++;
             return;
         }
 
         if (nstack == TOT - 1) {
-            print_stack();
+            printStack();
             return;
         }
 
@@ -103,7 +110,7 @@ class ChineseCheckers {
             capture = from >>> 1;
             if ((board & capture) != 0 && (0 == (board & (to = from >>> 2)))) {
                 makemove(from, to, capture);
-                gen();
+                _gen();
                 undomove();
             }
             bits &= ~from;
@@ -115,7 +122,7 @@ class ChineseCheckers {
             capture = from << 8;
             if ((board & capture) != 0 && (0 == (board & (to = from << 16)))) {
                 makemove(from, to, capture);
-                gen();
+                _gen();
                 undomove();
             }
             bits &= ~from;
@@ -127,7 +134,7 @@ class ChineseCheckers {
             capture = from >>> 8;
             if ((board & capture) != 0 && (0 == (board & (to = from >>> 16)))) {
                 makemove(from, to, capture);
-                gen();
+                _gen();
                 undomove();
             }
             bits &= ~from;
@@ -139,24 +146,24 @@ class ChineseCheckers {
             capture = from << 1;
             if ((board & capture) != 0 && (0 == (board & (to = from << 2)))) {
                 makemove(from, to, capture);
-                gen();
+                _gen();
                 undomove();
             }
             bits &= ~from;
         }
 
-        hashArray[(int) (board % HASH_SIZE)] = board;
+        hashArray[(int) (Math.abs(board) % HASH_SIZE)] = board;
     }
 
-    private void print_stack() {
+    private void printStack() {
         long time = System.currentTimeMillis() - startTime;
         Nsolution++;
         System.out.println("\nSolution# " + Nsolution + " ms: " + time + " ----------------- start stack moves ------------------------");
         int i;
         for (i = 0; i < nstack; i++) {
-            print(stack[i]);
+            print(stack[i],TERRAIN);
         }
-        print(board);
+        print(board,TERRAIN);
         System.out.println("\nstack solution: " + Nsolution + " | ");
         for (i = 0; i < nstack; i++) {
             System.out.print("0x" + stack[i] + "L, ");
