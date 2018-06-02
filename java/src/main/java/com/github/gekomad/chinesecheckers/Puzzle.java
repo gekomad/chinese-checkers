@@ -31,7 +31,7 @@ class Puzzle extends ChineseCheckers {
     }
 
     // -1 invalid 1 piece 0 no piece
-    private int inBoard(long bit, long board,long TERRAIN) {
+    private int inBoard(long bit, long board, long TERRAIN) {
         if ((bit & TERRAIN) == 0) return -1;
         if ((bit & board) == 0) return 0;
         return 1;
@@ -42,8 +42,8 @@ class Puzzle extends ChineseCheckers {
         ChineseCheckers.Move n = moves.get(new Random().nextInt(moves.size()));
         switch (n) {
             case RIGHT: {
-                int to = inBoard(piece >>> 2, board & BOARD_to_LEFT,TERRAIN & BOARD_to_LEFT);
-                int captured = inBoard(piece >>> 1, board & BOARD_to_LEFT,TERRAIN & BOARD_to_LEFT);
+                int to = inBoard(piece >>> 2, board & BOARD_to_LEFT, TERRAIN & BOARD_to_LEFT);
+                int captured = inBoard(piece >>> 1, board & BOARD_to_LEFT, TERRAIN & BOARD_to_LEFT);
                 if (to != -1 && to == 0 && captured != -1 && captured == 0)
 //                    if ((piece >>> 1 & BOARD_to_LEFT) != 0 && (piece >>> 1 & TERRAIN) != 0 && (piece >>> 2 & BOARD_to_LEFT) != 0 && (piece >>> 2 & TERRAIN) != 0)
                     return new FromToCaptured(piece >>> 1, piece >>> 2, piece);
@@ -54,8 +54,8 @@ class Puzzle extends ChineseCheckers {
                 break;
             }
             case UP: {
-                int to = inBoard(piece << 8, board & BOARD_to_DOWN,TERRAIN & BOARD_to_DOWN);
-                int captured = inBoard(piece << 16, board & BOARD_to_DOWN,TERRAIN & BOARD_to_DOWN);
+                int to = inBoard(piece << 8, board & BOARD_to_DOWN, TERRAIN & BOARD_to_DOWN);
+                int captured = inBoard(piece << 16, board & BOARD_to_DOWN, TERRAIN & BOARD_to_DOWN);
                 if (to != -1 && to == 0 && captured != -1 && captured == 0)
 //                if ((piece << 8 & BOARD_to_DOWN) != 0 && (piece << 8 & TERRAIN) != 0 && (piece << 16 & BOARD_to_DOWN) != 0 && (piece << 16 & TERRAIN) != 0)
                     return new FromToCaptured(piece << 8, piece << 16, piece);
@@ -66,8 +66,8 @@ class Puzzle extends ChineseCheckers {
                 break;
             }
             case DOWN: {
-                int to = inBoard(piece >> 8, board & BOARD_to_UP,TERRAIN & BOARD_to_UP);
-                int captured = inBoard(piece >>> 16, board & BOARD_to_UP,TERRAIN & BOARD_to_UP);
+                int to = inBoard(piece >> 8, board & BOARD_to_UP, TERRAIN & BOARD_to_UP);
+                int captured = inBoard(piece >>> 16, board & BOARD_to_UP, TERRAIN & BOARD_to_UP);
                 if (to != -1 && to == 0 && captured != -1 && captured == 0)
 //                if ((piece >>> 8 & BOARD_to_UP) != 0 && (piece >>> 8 & TERRAIN) != 0 && (piece >>> 16 & BOARD_to_UP) != 0 && (piece >>> 16 & TERRAIN) != 0)
                     return new FromToCaptured(piece >>> 8, piece >>> 16, piece);
@@ -78,8 +78,8 @@ class Puzzle extends ChineseCheckers {
                 break;
             }
             case LEFT: {
-                int to = inBoard(piece << 1, board & BOARD_to_UP,TERRAIN & BOARD_to_UP);
-                int captured = inBoard(piece << 2, board & BOARD_to_UP,TERRAIN & BOARD_to_UP);
+                int to = inBoard(piece << 1, board & BOARD_to_UP, TERRAIN & BOARD_to_UP);
+                int captured = inBoard(piece << 2, board & BOARD_to_UP, TERRAIN & BOARD_to_UP);
                 if (to != -1 && to == 0 && captured != -1 && captured == 0)
 //                if ((piece << 1 & BOARD_to_RIGHT) != 0 && (piece << 1 & TERRAIN) != 0 && (piece << 2 & BOARD_to_RIGHT) != 0 && (piece << 2 & TERRAIN) != 0)
                     return new FromToCaptured(piece << 1, piece << 2, piece);
@@ -103,15 +103,14 @@ class Puzzle extends ChineseCheckers {
             if (found != 0)
                 break;
         }
-        if (found != 0) print(found);
+        if (found != 0) print(found, TERRAIN);
         else System.out.println("no solutions");
         return found;
     }
 
     private void puzzle(long bits, int count) {
 
-        System.out.println("count " + count);
-        print(bits);
+        print(bits, TERRAIN);
         //if (count > 200 || exceedTime() || found != 0) return;
         if (popCount(bits) >= MAX_PIECES) {
             found = bits;
