@@ -78,8 +78,8 @@ class Puzzle extends ChineseCheckers {
                 break;
             }
             case LEFT: {
-                int to = inBoard(piece << 1, board & BOARD_to_UP, TERRAIN & BOARD_to_UP);
-                int captured = inBoard(piece << 2, board & BOARD_to_UP, TERRAIN & BOARD_to_UP);
+                int to = inBoard(piece << 1, board & BOARD_to_RIGHT, TERRAIN & BOARD_to_RIGHT);
+                int captured = inBoard(piece << 2, board & BOARD_to_RIGHT, TERRAIN & BOARD_to_RIGHT);
                 if (to != -1 && to == 0 && captured != -1 && captured == 0)
 //                if ((piece << 1 & BOARD_to_RIGHT) != 0 && (piece << 1 & TERRAIN) != 0 && (piece << 2 & BOARD_to_RIGHT) != 0 && (piece << 2 & TERRAIN) != 0)
                     return new FromToCaptured(piece << 1, piece << 2, piece);

@@ -19,10 +19,10 @@ class ChineseCheckers {
 
     final long TERRAIN;
 
-    long BOARD_to_RIGHT ;
-    long BOARD_to_LEFT ;
-    long BOARD_to_UP ;
-    long BOARD_to_DOWN ;
+    long BOARD_to_RIGHT;
+    long BOARD_to_LEFT;
+    long BOARD_to_UP;
+    long BOARD_to_DOWN;
     private int maxSolutions = 1000000000;
     private int Nsolution;
     private final long startTime;
@@ -82,9 +82,8 @@ class ChineseCheckers {
         board = stack[nstack];
     }
 
-    long[] gen() {
-        _gen();
-        return stack;
+    void gen() {       
+        _gen();       
     }
 
     private void _gen() {
@@ -94,13 +93,15 @@ class ChineseCheckers {
             System.out.println("Nmoves: " + nmoves + " cut: " + cut + " " + cut * 100 / nmoves + "%");
         }
 
-        if (hashArray[(int) (Math.abs(board) % HASH_SIZE)] == board) {
+        int x=(int) Math.abs(board % HASH_SIZE);
+      
+        if (hashArray[x] == board) {
             cut++;
             return;
         }
 
         if (nstack == TOT - 1) {
-            printStack();
+            printStack();           
             return;
         }
 
@@ -152,7 +153,7 @@ class ChineseCheckers {
             bits &= ~from;
         }
 
-        hashArray[(int) (Math.abs(board) % HASH_SIZE)] = board;
+        hashArray[x] = board;
     }
 
     private void printStack() {
@@ -161,9 +162,9 @@ class ChineseCheckers {
         System.out.println("\nSolution# " + Nsolution + " ms: " + time + " ----------------- start stack moves ------------------------");
         int i;
         for (i = 0; i < nstack; i++) {
-            print(stack[i],TERRAIN);
+            print(stack[i], TERRAIN);
         }
-        print(board,TERRAIN);
+        print(board, TERRAIN);
         System.out.println("\nstack solution: " + Nsolution + " | ");
         for (i = 0; i < nstack; i++) {
             System.out.print("0x" + stack[i] + "L, ");
