@@ -1,18 +1,15 @@
 package streams
 
 import chineseCheckers.solver.{GameDef, Puzzle, Solver}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-import scala.annotation.tailrec
-import scala.util.Random
-
-class ChineseCheckerSuite extends FunSuite {
+class ChineseCheckerSuite extends AnyFunSuite {
 
   test("shift") {
 
     new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838FEFEFE3838L) with Solver {
 
-      assert(bitsStream(0, 0, Right) == Stream.empty)
+      assert(bitsStream(0, 0, Right) == LazyList.empty)
 
       val a = 100L
       val b = a >>> 1
@@ -41,7 +38,6 @@ class ChineseCheckerSuite extends FunSuite {
 
   test("solution") {
 
-
     new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838FEFEFE3838L) with Solver {
       /*
          # # # # # # # #
@@ -52,12 +48,12 @@ class ChineseCheckerSuite extends FunSuite {
          - - - - - - - #
          # # - - - # # #
          # # - - - # # #
-        */
+       */
       val INIT_BOARD = 0xc000000L
       printBoard(INIT_BOARD)
       println("\n------------------------")
-      override val startTime = System.currentTimeMillis
-      val l: Stream[List[Long]] = gen((INIT_BOARD, List.empty), Stream.empty, popCount(INIT_BOARD))
+      override val startTime      = System.currentTimeMillis
+      val l: LazyList[List[Long]] = gen((INIT_BOARD, List.empty), LazyList.empty, popCount(INIT_BOARD))
 
       /*
 
@@ -83,12 +79,11 @@ class ChineseCheckerSuite extends FunSuite {
       # # - - - # # #
       # # - - - # # #
 
-     */
+       */
 
-      l.foreach {
-        t =>
-          println("solution:")
-          t.reverse.foreach(println(_))
+      l.foreach { t =>
+        println("solution:")
+        t.reverse.foreach(println(_))
       }
       assert(l.toList == List(List(33554432, 201326592), List(268435456, 201326592)))
 
@@ -108,16 +103,20 @@ class ChineseCheckerSuite extends FunSuite {
        - - - - - - - #
        # # - - - # # #
        # # - - - # # #
-      */
+       */
 
       println("\n------------------------------")
       override val startTime = System.currentTimeMillis
-      val nPieces = 5
+      val nPieces            = 5
 
       def getSol(TERRAIN: Long, nPieces: Int, count: Int): Option[Long] = {
         if (count <= 0) None
-        val l = puzzle(randomBit(TERRAIN), nPieces)
-        l.fold(getSol(TERRAIN, nPieces, count - 1)){_ => l}
+        else {
+          val l = puzzle(randomBit(TERRAIN), nPieces)
+          l.fold(getSol(TERRAIN, nPieces, count - 1)) { _ =>
+            l
+          }
+        }
       }
 
       val sol1 = getSol(TERRAIN, nPieces, 5)
@@ -125,17 +124,17 @@ class ChineseCheckerSuite extends FunSuite {
         printBoard(sol)
         assert(popCount(sol) == nPieces)
 
-        new GameDef(HASH_SIZE = 1229498, TERRAIN = T) with Solver {
+        val a = new GameDef(HASH_SIZE = 1229498, TERRAIN = T) with Solver {
           printBoard(sol)
           maxSolution = 1
-          override val startTime = System.currentTimeMillis
-          val l: Stream[List[Long]] = gen((sol, List.empty), Stream.empty, popCount(sol))
+          override val startTime      = System.currentTimeMillis
+          val l: LazyList[List[Long]] = gen((sol, List.empty), LazyList.empty, popCount(sol))
           println(s"n solutions: ${l.size}")
-          assert(l.size > 0)
+          assert(l.nonEmpty)
         }
+        println(a)
       }
     }
   }
-
 
 }

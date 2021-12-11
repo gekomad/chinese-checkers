@@ -28,15 +28,14 @@ object Main extends App {
     # # O O O # # #
      */
 
-
     printBoard(INIT_BOARD)
     println("\n------------------------")
-    override val startTime = System.currentTimeMillis
-    val l: Stream[List[Long]] = gen((INIT_BOARD, List.empty), Stream.empty,popCount(INIT_BOARD))
+    override val startTime: Long = System.currentTimeMillis
+    val l: LazyList[List[Long]]  = gen((INIT_BOARD, List.empty), LazyList.empty, popCount(INIT_BOARD))
 
     l.foreach {
-        println("solution:")
-        _.reverse.foreach(println)
+      println("solution:")
+      _.reverse.foreach(println)
     }
   }
 }

@@ -11,7 +11,9 @@ trait Puzzle extends GameDef {
     @tailrec
     def go(bits: Long): Long = {
       val nx = next(bits)
-      if (nx == 0) 0 else if (popCount(nx) == nPieces) nx else
+      if (nx == 0) 0
+      else if (popCount(nx) == nPieces) nx
+      else
         go(nx)
     }
 
