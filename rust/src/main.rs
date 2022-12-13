@@ -14,7 +14,7 @@ O	O	O	O	O	O	O
  */
 
 
-extern crate time;
+use std::time::Instant;
 
 type Bits = u64;
 
@@ -33,7 +33,7 @@ struct Global {
     nsolution: isize,
     nstack: isize,
     tot: isize,
-    start_time: u64,
+    start_time: Instant,
     hash_array: Vec<Bits>,
     stack: [Bits; 64],
 }
@@ -93,8 +93,8 @@ fn pop_count(x: Bits) -> isize {
     go(x, 0)
 }
 
-fn get_ns() -> u64 {
-    time::precise_time_ns()
+fn get_ns() -> Instant {
+    Instant::now()
 }
 
 fn print(board: Bits) {
@@ -119,13 +119,13 @@ fn print_stack(global: &mut Global) {
     if global.nmoves != 0 {
         let time = (get_ns() - global.start_time) / 1000000;
         global.nsolution = global.nsolution + 1;
-        println!("\nSolution# {} ms: {} ----------------- start stack moves ------------------------  ", global.nsolution, time);
+        println!("\nSolution# {} ms: {:?} ----------------- start stack moves ------------------------  ", global.nsolution, time.as_nanos());
         for i in 0..global.nstack {
             print(global.stack[i as usize]);
         }
         print(global.board);
         print!("Nmoves: {} Hash cut: {} ({}%) ", global.nmoves, global.cut, global.cut * 100 / global.nmoves);
-        println!("\nSolution# {} ms: {} ----------------- end stack moves ------------------------  ", global.nsolution, time)
+        println!("\nSolution# {} ms: {:?} ----------------- end stack moves ------------------------  ", global.nsolution, time.as_nanos())
     }
 }
 
@@ -227,13 +227,13 @@ fn main() {
         nsolution: 0,
         nstack: 0,
         tot: pop_count(INIT_BOARD),
-        start_time: time::precise_time_ns(),
+        start_time: get_ns(),
         hash_array: vec![0; HASH_SIZE],
         stack: [0; 64],
     };
 
     print(global.board);
-    global.start_time = time::precise_time_ns();
+    global.start_time = get_ns();
     gen(&mut global)
 }
 
@@ -246,7 +246,7 @@ fn makemove_test() {
         nsolution: 0,
         nstack: 0,
         tot: pop_count(INIT_BOARD),
-        start_time: 0,
+        start_time: get_ns(),
         hash_array: vec![0; 0],
         stack: [0; 64],
     };

@@ -17,7 +17,7 @@ We need of two checkerboards, the first one to set the pieces, the second to spe
 The checkerboard up has these bits 00000000_00111000_00111000_11111110_11101110_11111110_00111000_00111000 and his exadecimal notation is 0x3838FEEEFE3838, the terrain is
 00111000_00111000_11111110_11111110_11111110_00111000_00111000 (0x3838FEFEFE3838).
 
-You can use the Bitmap Calculator (http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html) to manipulate the bit mask.
+You can use the Bitmap Calculator (https://gekomad.github.io/Cinnamon/BitboardCalculator) to manipulate the bit mask.
 
 To speed up the backtracking process, an Hash Table of 64-bit words is used.
 
@@ -46,16 +46,14 @@ To speed up the backtracking process, an Hash Table of 64-bit words is used.
 
 `g++ -O3 main.cpp -pthread -o checkers`
 
-`./checkers`
+`./checkers [n_thread]`
 
 
 ### Rust:
 
 `cd rust`
 
-`cargo build --release`
-
-`./target/release/checkers`
+`cargo run --release`
 
 ### Vala:
 

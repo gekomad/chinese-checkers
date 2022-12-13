@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
     hash_array = (u64 *) calloc(HASH_SIZE, sizeof(u64));
 
 
-    int nTreads = 4;
+    int nTreads = 1;
     if (argc == 2)
         nTreads = atoi(argv[1]);
 

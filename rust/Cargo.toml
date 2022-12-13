@@ -1,11 +1,4 @@
 [package]
 name = "checkers"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Giuseppe Cannella"]
-
-[dependencies]
-time = "0.1.38"
-
-#[profile.release]
-#opt-level = 0
-#debug = true

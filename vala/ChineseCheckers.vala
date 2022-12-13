@@ -22,8 +22,6 @@ public class ChineseCheckers
 
   const int HASH_SIZE = 1229498;
 
-// Bitboard Calculator: http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html
-
   private const uint64 INIT_BOARD = 0x3838FEEEFE3838ULL;
   private const uint64 BOARD = 0x3838FEFEFE3838ULL;
   private const uint64 BOARD_to_RIGHT = 0x2020F8F8F82020ULL;

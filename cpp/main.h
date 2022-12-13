@@ -34,8 +34,6 @@ public:
 
 #define HASH_SIZE        1229498
 
-// Bitboard Calculator: http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html
-
 #define INIT_BOARD       0x3838FEEEFE3838ULL
 #define BOARD            0x3838FEFEFE3838ULL
 #define BOARD_to_RIGHT   0x2020F8F8F82020ULL
