@@ -21,17 +21,6 @@ You can use the Bitmap Calculator (https://gekomad.github.io/Cinnamon/BitboardCa
 
 To speed up the backtracking process, an Hash Table of 64-bit words is used.
 
-| Lang   |      speed x      |
-|----------|:-------------:|
-| Scala | 1 |
-| vala | 16 |
-| rust | 20 |
-| c | 21 |
-| c++ 1 thread | 20 |
-| c++ 2 thread | 22 |
-| c++ 4 thread | 20 |
-| c++ 8 thread | 10 |
-
 ### C:
 
 `cd c`
