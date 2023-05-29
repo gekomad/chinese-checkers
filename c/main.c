@@ -23,30 +23,15 @@ u64 board, nmoves, cut;
 
 #define HASH_SIZE        1229498
 
-#define INIT_BOARD       0x3838FEEEFE3838ULL
-#define BOARD            0x3838FEFEFE3838ULL
-#define BOARD_to_RIGHT   0x2020F8F8F82020ULL
-#define BOARD_to_LEFT    0x8083E3E3E0808ULL
-#define BOARD_to_UP      0x3838FE3838ULL
-#define BOARD_to_DOWN    0x3838FE38380000ULL
+u64 TERRAIN;
 
 int Nsolution, nstack, TOT;
 long start_time;
 u64 *hash_array;
 u64 stack[64];
 
-const int index64[64] = {
-        0,  1, 48,  2, 57, 49, 28,  3,
-        61, 58, 50, 42, 38, 29, 17,  4,
-        62, 55, 59, 36, 53, 51, 43, 22,
-        45, 39, 33, 30, 24, 18, 12,  5,
-        63, 47, 56, 27, 60, 41, 37, 16,
-        54, 35, 52, 21, 44, 32, 23, 11,
-        46, 26, 40, 15, 34, 20, 31, 10,
-        25, 14, 19,  9, 13,  8,  7,  6
-};
-
 #if __WORDSIZE == 64
+
 static inline int BITScanForward(u64 bits) {
     return __builtin_ffsll(bits) - 1;
 }
@@ -104,10 +89,10 @@ long get_ms() {
 }
 
 void print(u64 board) {
-	int k;
+    int k;
     for (k = 64; k >= 1; k--) {
         if ((board & POW2[k - 1]) == 0) {
-            if ((BOARD & POW2[k - 1]) == 0)
+            if ((TERRAIN & POW2[k - 1]) == 0)
                 printf(" \t");
             else
                 printf("-\t");
@@ -123,20 +108,20 @@ void print_stack() {
     Nsolution++;
     printf("\nSolution# %d ms: %ld ----------------- start stack moves ------------------------  \n",
            Nsolution, time);
-	int i;
+    int i;
     for (i = 0; i < nstack; i++) {
         print(stack[i]);
     }
     print(board);
-    printf("\nstack solution: %d | ",Nsolution);
+    printf("\nstack solution: %d | ", Nsolution);
     for (i = 0; i < nstack; i++) {
-        printf("0x%llxL, ", stack[i]); 
+        printf("0x%llxL, ", stack[i]);
     }
-    
+
     printf("Nmoves: %llu Hash cut: %llu (%llu%%) ", nmoves, cut, cut * 100 / nmoves);
     printf("\nSolution# %d ms: %ld ----------------- end stack moves ------------------------  \n",
            Nsolution, time);
-    
+
 }
 
 void gen() {
@@ -151,72 +136,76 @@ void gen() {
         cut++;
         return;
     }
- 
-    if (nstack == TOT - 1) {         
-         print_stack();
-         return;
+
+    if (nstack == TOT - 1) {
+        print_stack();
+        return;
     }
-    
-    bits = board & BOARD_to_RIGHT;
+
+    bits = board & 0xfcfcfcfcfcfcfcfcULL;
     while (bits) {
         from = POW2[BITScanForward(bits)];
 
         capture = from >> 1;
-        if (board & capture && !(board & (to = from >> 2))) {
+        if (board & capture && !(board & (to = (from >> 2))) && to & TERRAIN) {
             makemove(from, to, capture);
             gen();
             undomove();
         }
         bits &= ~from;
-    };
+    }
 
-  
-  bits = board & BOARD_to_UP;
+    bits = board & 0xffffffffffffULL;
     while (bits) {
         from = POW2[BITScanForward(bits)];
         capture = from << 8;
-        if (board & capture && !(board & (to = from << 16))) {
+        if (board & capture && !(board & (to = (from << 16))) && to & TERRAIN) {
             makemove(from, to, capture);
             gen();
             undomove();
         }
         bits &= ~from;
-    };
+    }
 
-    bits = board & BOARD_to_DOWN;
+    bits = board & 0xffffffffffff0000ULL;
     while (bits) {
         from = POW2[BITScanForward(bits)];
         capture = from >> 8;
-        if (board & capture && !(board & (to = from >> 16))) {
+        if (board & capture && !(board & (to = (from >> 16))) && to & TERRAIN) {
             makemove(from, to, capture);
             gen();
             undomove();
         }
         bits &= ~from;
-    };
+    }
 
-    bits = board & BOARD_to_LEFT;
+    bits = board & 0x3f3f3f3f3f3f3f3fULL;
     while (bits) {
         from = POW2[BITScanForward(bits)];
         capture = from << 1;
-        if (board & capture && !(board & (to = from << 2))) {
+        if (board & capture && !(board & (to = (from << 2))) && to & TERRAIN) {
             makemove(from, to, capture);
             gen();
             undomove();
         }
         bits &= ~from;
-    };
+    }
 
     hash_array[board % HASH_SIZE] = board;
 }
 
 int main(int argc, char *argv[]) {
-    board = INIT_BOARD;
+
     nmoves = nstack = cut = Nsolution = 0;
-    TOT = popCount(board);
+
     hash_array = (u64 *) calloc(HASH_SIZE, sizeof(u64));
-    print(board);
+    board = 0x3838FEEEFE3838ULL;
+    TERRAIN = 0x3838FEFEFE3838ULL;
+//    board = 0x3cffdcd7fd2400ULL;
+//    TERRAIN = 0xffffffffff3e14ULL;
+    TOT = popCount(board);
     start_time = get_ms();
+    print(board);
     gen();
     free(hash_array);
     return 0;

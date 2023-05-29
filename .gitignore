@@ -10,4 +10,12 @@ dist
 /.classpath
 /.project
 /.settings
+.class
+.iml
+java/**/resources/*
+a.out
+.bsp
+main.h.gch
+
+Cargo.lock
 
