@@ -22,39 +22,58 @@ You can use the Bitmap Calculator (https://gekomad.github.io/Cinnamon/BitboardCa
 To speed up the backtracking process, an Hash Table of 64-bit words is used.
 
 ### C:
+```
+cd c
 
-`cd c`
+gcc -O3 main.c -o checkers
 
-`gcc -O3 main.c -o checkers`
-
-`./checkers`
-
+./checkers
+```
 ### C++:
+```
+cd cpp
 
-`cd cpp`
+g++ -O3 main.cpp -pthread -o checkers
 
-`g++ -O3 main.cpp -pthread -o checkers`
-
-`./checkers [n_thread]`
-
+./checkers [n_thread]
+```
 
 ### Rust:
+```
+cd rust
 
-`cd rust`
-
-`cargo run --release`
-
+cargo run --release
+```
 ### Vala:
+```
+cd vala
 
-`cd vala`
+valac ChineseCheckers.vala --Xcc=-O3 -o checkers 
 
-`valac ChineseCheckers.vala --Xcc=-O3 -o checkers `
-
-`./checkers`
+./checkers
+```
 
 ### Pure functional Scala:
 
-`cd scala`
+```
+cd scala
 
-`sbt run`
+sbt run
+```
+#### Scala native
+```
+cd scala
+mv build.sbt build.sbt.3 && mv build.sbt.native build.sbt
+sbt clean nativeLink
+target/scala-3.6.1/chinesecheckers
+```
 
+### Java:
+
+```
+cd java
+
+javac Main.java
+
+java Main
+```

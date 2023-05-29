@@ -1,0 +1,17 @@
+name := "chineseCheckers"
+
+libraryDependencies += "org.scalameta" %% "munit" % "1.0.2" % Test
+
+scalaVersion := "3.6.1"
+
+enablePlugins(ScalaNativePlugin)
+
+logLevel := Level.Info
+
+import scala.scalanative.build._
+
+nativeConfig ~= { c =>
+  c.withLTO(LTO.none)     // thin
+    .withMode(Mode.debug) // releaseFast
+    .withGC(GC.immix)     // commix
+}

@@ -1,13 +1,12 @@
 package streams
 
 import chineseCheckers.solver.{GameDef, Puzzle, Solver}
-import org.scalatest.funsuite.AnyFunSuite
 
-class ChineseCheckerSuite extends AnyFunSuite {
+class ChineseCheckerSuite extends munit.FunSuite {
 
   test("shift") {
 
-    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838FEFEFE3838L) with Solver {
+    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838fefefe3838L) with Solver {
 
       assert(bitsStream(0, 0, Right) == LazyList.empty)
 
@@ -25,7 +24,7 @@ class ChineseCheckerSuite extends AnyFunSuite {
 
   test("bitsStream") {
 
-    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838FEFEFE3838L) with Solver {
+    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838fefefe3838L) with Solver {
 
       val o = for {
         l2 <- bitsStream(100, 8, Right)
@@ -38,7 +37,7 @@ class ChineseCheckerSuite extends AnyFunSuite {
 
   test("solution") {
 
-    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838FEFEFE3838L) with Solver {
+    new GameDef(HASH_SIZE = 1, TERRAIN = 0x3838fefefe3838L) with Solver {
       /*
          # # # # # # # #
          # # - - - # # #
@@ -92,7 +91,7 @@ class ChineseCheckerSuite extends AnyFunSuite {
 
   test("puzzle") {
 
-    val T = 0x3838FEFEFE3838L
+    val T = 0x3838fefefe3838L
     new GameDef(HASH_SIZE = 1, TERRAIN = T) with Puzzle {
       /*
        # # # # # # # #
