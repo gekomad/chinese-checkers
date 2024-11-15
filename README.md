@@ -24,32 +24,25 @@ To speed up the backtracking process, an Hash Table of 64-bit words is used.
 ### C:
 ```
 cd c
-
 gcc -O3 main.c -o checkers
-
 ./checkers
 ```
 ### C++:
 ```
 cd cpp
-
 g++ -O3 main.cpp -pthread -o checkers
-
 ./checkers [n_thread]
 ```
 
 ### Rust:
 ```
 cd rust
-
 cargo run --release
 ```
 ### Vala:
 ```
 cd vala
-
 valac ChineseCheckers.vala --Xcc=-O3 -o checkers 
-
 ./checkers
 ```
 
@@ -57,7 +50,6 @@ valac ChineseCheckers.vala --Xcc=-O3 -o checkers
 
 ```
 cd scala
-
 sbt run
 ```
 #### Scala native
@@ -72,8 +64,6 @@ target/scala-3.6.1/chinesecheckers
 
 ```
 cd java
-
 javac Main.java
-
 java Main
 ```
